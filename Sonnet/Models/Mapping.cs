@@ -11,7 +11,8 @@ public class Mapping
             BaseExperience = poke.BaseExperience,
             Weight = poke.Weight,
             Sprites = OfPokeApiSprite(poke.Sprites),
-            FlavorText = null
+            FlavorText = null,
+            TranslatedFlavorText = null
         };
     }
 
