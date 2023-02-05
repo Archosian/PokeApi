@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sonnet", "Sonnet\Sonnet.csproj", "{776289A1-D75C-4056-8C35-E32362D97E5C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SonnetTests", "SonnetTests\SonnetTests.csproj", "{DC116FB5-A39D-4AF2-B023-2221748BEB06}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{776289A1-D75C-4056-8C35-E32362D97E5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{776289A1-D75C-4056-8C35-E32362D97E5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{776289A1-D75C-4056-8C35-E32362D97E5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC116FB5-A39D-4AF2-B023-2221748BEB06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC116FB5-A39D-4AF2-B023-2221748BEB06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC116FB5-A39D-4AF2-B023-2221748BEB06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC116FB5-A39D-4AF2-B023-2221748BEB06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

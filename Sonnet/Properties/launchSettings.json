@@ -14,11 +14,9 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7094;http://localhost:5270",
+      "applicationUrl": "http://localhost:5270",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "POKE_API_BASE_URL": "https://pokeapi.co/api/v2/",
-        "FUN_TRANSLATION_BASE_URL": "https://api.funtranslations.com/translate/"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "IIS Express": {

@@ -12,6 +12,7 @@ public class FunTranslationClient : IFunTranslationClient
     private readonly ILogger<FunTranslationClient> _logger;
     private readonly IDistributedCache _cache;
 
+    public const string BaseUrl = "https://api.funtranslations.com/translate/";
     private const string Key = "translation_";
 
     private static string CacheKey(string key)
@@ -22,9 +23,16 @@ public class FunTranslationClient : IFunTranslationClient
     /// <summary>
     /// Uses a cache to debounce requests to the strongly rate-limited FunTranslations API.
     /// </summary>
-    public FunTranslationClient(ILogger<FunTranslationClient> logger, IDistributedCache cache)
+    // public FunTranslationClient(ILogger<FunTranslationClient> logger, IDistributedCache cache)
+    // {
+    //     _client = new RestClient();
+    //     _logger = logger;
+    //     _cache = cache;
+    // }
+
+    public FunTranslationClient(ILogger<FunTranslationClient> logger, IDistributedCache cache, RestClient client)
     {
-        _client = new RestClient(Environment.GetEnvironmentVariable("FUN_TRANSLATION_BASE_URL")!);
+        _client = client;
         _logger = logger;
         _cache = cache;
     }
@@ -33,27 +41,30 @@ public class FunTranslationClient : IFunTranslationClient
     {
         try
         {
-            var cachedResponse = await _cache.GetStringAsync(CacheKey(key), token);
+            var key2 = CacheKey(key);
+            var cachedResponse = await _cache.GetStringAsync(key2, token);
             if (!string.IsNullOrEmpty(cachedResponse))
             {
                 _logger.LogInformation($"Cache hit on {key}");
                 return cachedResponse;
             }
+            _logger.LogInformation($"Cache miss, fetching translation for {key}.");
 
-            var request = new RestRequest("shakespeare.json")
+            var request = new RestRequest($"{BaseUrl}shakespeare.json")
                 .AddQueryParameter("text", HttpUtility.UrlEncode(input), false)
                 .AddStringBody("{}", ContentType.Json);
             var response = await _client.PostAsync<TranslationResponse>(request, token);
             if (response?.Success?.Total == 1 && response.Contents?.Translated != null)
             {
-                //TODO Cache with no expiry.
+                _logger.LogInformation($"Setting cache for {key} after successful fetch.");
+                //TODO Cache with expiry?
                 await _cache.SetStringAsync(CacheKey(key), response.Contents.Translated, token);
                 return response.Contents.Translated;
             }
 
-            if (response?.Error?.Code == 429)
+            if (response?.Error != null)
             {
-                _logger.LogWarning("The translation API is rate limiting requests");
+                _logger.LogWarning($"The translation API replied with an error: {response.Error.Code} {response.Error.Message}");
             }
         }
         catch (Exception e)

@@ -1,3 +1,4 @@
+using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Sonnet.Clients.FunTranslation;
 using Sonnet.Clients.PokeApi;
@@ -9,13 +10,11 @@ namespace Sonnet.Controllers;
 [Route("api/pokemon")]
 public class PokemonDescriber : ControllerBase
 {
-    private readonly ILogger<PokemonDescriber> _logger;
     private readonly IPokeApiClient _pokeApiClient;
     private readonly IFunTranslationClient _translationClient;
 
-    public PokemonDescriber(ILogger<PokemonDescriber> logger, IPokeApiClient pokeApiClient, IFunTranslationClient translationClient)
+    public PokemonDescriber(IPokeApiClient pokeApiClient, IFunTranslationClient translationClient)
     {
-        _logger = logger;
         _pokeApiClient = pokeApiClient;
         _translationClient = translationClient;
     }
@@ -29,12 +28,14 @@ public class PokemonDescriber : ControllerBase
     /// <param name="token">Cancellation token</param>
     /// <returns></returns>
     [HttpGet("{identifier}")]
-    public async Task<ApiResponse<Pokemon>> Get(string identifier, [FromQuery]bool skipTranslation, CancellationToken token)
+    [ProducesResponseType(typeof(ApiResponse<Pokemon>), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(ApiResponse<Pokemon>), (int)HttpStatusCode.NotFound)]
+    public async Task<IActionResult> Get(string identifier, [FromQuery]bool skipTranslation, CancellationToken token)
     {
         var pokemon = await _pokeApiClient.GetByNameOrId(identifier.ToLower(), token);
         if (pokemon == null)
         {
-            return ApiResponse<Pokemon>.ErrorResponse($"Could not find Pokemon {identifier}");
+            return NotFound(ApiResponse<Pokemon>.ErrorResponse($"Could not find Pokemon {identifier}"));
         }
 
         var domainPokemon = Mapping.OfPokeApiPokemon(pokemon);
@@ -44,21 +45,12 @@ public class PokemonDescriber : ControllerBase
         {
             var text = await _pokeApiClient.FlavorTextBySpeciesName(species, token);
             domainPokemon.FlavorText = text;
-            if (!skipTranslation)
+            if (!skipTranslation && text != null)
             {
-                domainPokemon.TranslatedFlavorText = await GetFlavorTextForSpecies(species, text, token);
+                domainPokemon.TranslatedFlavorText = await _translationClient.Translate(species, text, token);
             }
         }
 
-        return ApiResponse<Pokemon>.SuccessResponse(domainPokemon);
-    }
-
-    private async Task<string?> GetFlavorTextForSpecies(string species, string?  text, CancellationToken token)
-    {
-        if (text != null)
-        {
-            text = await _translationClient.Translate(species, text, token);
-        }
-        return text;
+        return Ok(ApiResponse<Pokemon>.SuccessResponse(domainPokemon));
     }
 }

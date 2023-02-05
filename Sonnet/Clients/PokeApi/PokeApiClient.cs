@@ -9,11 +9,18 @@ public class PokeApiClient : IPokeApiClient
     private readonly RestClient _client;
     private readonly ILogger<PokeApiClient> _logger;
 
-    private const string TargetVersion = "ruby";
+    public const string TargetVersion = "ruby";
+    private const string BaseUrl = "https://pokeapi.co/api/v2/";
 
-    public PokeApiClient(ILogger<PokeApiClient> logger)
+    // public PokeApiClient(ILogger<PokeApiClient> logger)
+    // {
+    //     _client = new RestClient(BaseUrl);
+    //     _logger = logger;
+    // }
+
+    public PokeApiClient(ILogger<PokeApiClient> logger, RestClient client)
     {
-        _client = new RestClient(Environment.GetEnvironmentVariable("POKE_API_BASE_URL")!);
+        _client = client;
         _logger = logger;
     }
 
@@ -21,7 +28,7 @@ public class PokeApiClient : IPokeApiClient
     {
         try
         {
-            return await _client.GetJsonAsync<Pokemon>($"/pokemon/{identifier}", token);
+            return await _client.GetJsonAsync<Pokemon>($"{BaseUrl}/pokemon/{identifier}", token);
         }
         catch
         {
@@ -34,7 +41,7 @@ public class PokeApiClient : IPokeApiClient
         try
         {
             _logger.LogInformation($"Fetching species {name}");
-            var species = await _client.GetJsonAsync<Species>($"/pokemon-species/{name}", token);
+            var species = await _client.GetJsonAsync<Species>($"{BaseUrl}/pokemon-species/{name}", token);
             var text = species?.FlavorTextEntries?
                             .Where(ft => ft.Version?.Name?.Equals(TargetVersion) ?? false)
                             .FirstOrDefault();
