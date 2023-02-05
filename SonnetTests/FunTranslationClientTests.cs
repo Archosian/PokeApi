@@ -8,19 +8,6 @@ using RichardSzalay.MockHttp;
 
 namespace SonnetTests;
 
-//TODO
-// PokeApiClient tests.
-//      GetByNameOrId hits the client and returns the object.
-//      Returns Null on exceptions
-//      FlavorTextBySpecies name hits the client, and extracts the flavor text matching the version
-//      FlavorTextBySpecies name hits the client, and returns null if not flavor text in list.
-//      FlavorTextBySpecies name hits the client, and returns empty if flavor text is null.
-// Describer tests
-//      Gets Pokemon, Returns if no species
-//      Gets Pokemon, Gets Species, doesn't translate if skipping, returns.
-//      Gets Pokemon, Gets Species, Calls translate, returns with all the content.
-//      Error if cannot get pokemon by name, sets 404.
-
 public class FunTranslationsClientTests
 {
 

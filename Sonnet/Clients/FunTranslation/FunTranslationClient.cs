@@ -23,13 +23,6 @@ public class FunTranslationClient : IFunTranslationClient
     /// <summary>
     /// Uses a cache to debounce requests to the strongly rate-limited FunTranslations API.
     /// </summary>
-    // public FunTranslationClient(ILogger<FunTranslationClient> logger, IDistributedCache cache)
-    // {
-    //     _client = new RestClient();
-    //     _logger = logger;
-    //     _cache = cache;
-    // }
-
     public FunTranslationClient(ILogger<FunTranslationClient> logger, IDistributedCache cache, RestClient client)
     {
         _client = client;
