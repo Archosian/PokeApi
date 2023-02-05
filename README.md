@@ -4,7 +4,16 @@ A toy example that plugs two APIs together, "translating" the Pokemon's flavorTe
 
 ## Run
 
-Run the API from `Sonnet/` with `dotnet run`. Alternatively, build and run via docker from `Sonnet/` by running `docker build -t sonnet -f Dockerfile .` to build the `sonnet:latest` container, followed by `docker run -p 8080:80 sonnet:latest` to run locally on port `8080`.
+Run the API from `Sonnet/` with:
+
+```dotnet run```
+
+Alternatively, build and run via docker from `Sonnet/` by running:
+```
+docker build -t sonnet -f Dockerfile .
+docker run -p 8080:80 sonnet:latest
+``` 
+This will expose the service locally on port `8080` for perusal. The Swagger UI is left on for perusal.
 
 ## Tests
 
