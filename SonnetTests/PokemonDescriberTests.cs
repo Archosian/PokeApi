@@ -12,12 +12,14 @@ namespace SonnetTests;
 
 public class PokemonDescriberTests
 {
-    private static readonly Pokemon examplePokemon = new Pokemon()
+
+    private static readonly NamedApiResource Species = new() { Name = "specialspecies" };
+    private static readonly Pokemon ExamplePokemon = new()
     {
         BaseExperience = 0,
         Id = 0,
         Name = "dummyPokemon",
-        Species = new NamedApiResource { Name = "specialspecies" },
+        Species = Species,
         Sprites = null,
         Weight = 0
     };
@@ -26,7 +28,7 @@ public class PokemonDescriberTests
     public async void GetReturnsPokemonIfNoSpecies()
     {
         //Arrange
-        var pokemon = examplePokemon;
+        var pokemon = ExamplePokemon;
         pokemon.Species = null;
         var mockPokeApi = new Mock<IPokeApiClient>();
         mockPokeApi
@@ -37,7 +39,7 @@ public class PokemonDescriberTests
         var describer = new PokemonDescriber(mockPokeApi.Object, mockTranslationApi.Object);
 
         //Act
-        var response = await describer.Get(examplePokemon.Name, true, new CancellationToken());
+        var response = await describer.Get(ExamplePokemon.Name, true, new CancellationToken());
 
         //Assert
         var result = response as OkObjectResult;
@@ -54,21 +56,22 @@ public class PokemonDescriberTests
     public async void GetReturnsPokemonWithoutTranslationIfSkipping()
     {
         //Arrange
-        var pokemon = Mapping.OfPokeApiPokemon(examplePokemon);
+        var ct = new CancellationToken();
+        var pokemon = Mapping.OfPokeApiPokemon(ExamplePokemon);
         var flavorText = "My favourite flavor text";
         pokemon.FlavorText = flavorText;
         var mockPokeApi = new Mock<IPokeApiClient>();
         mockPokeApi
-            .Setup(api => api.GetByNameOrId(examplePokemon.Name.ToLower(), It.IsAny<CancellationToken>()).Result)
-            .Returns(examplePokemon);
+            .Setup(api => api.GetByNameOrId(ExamplePokemon.Name.ToLower(), ct).Result)
+            .Returns(ExamplePokemon);
         mockPokeApi
-            .Setup(api => api.FlavorTextBySpeciesName(examplePokemon.Species.Name, It.IsAny<CancellationToken>()).Result)
+            .Setup(api => api.FlavorTextBySpeciesName(ExamplePokemon.Species.Name, ct).Result)
             .Returns(flavorText);
         var mockTranslationApi = new Mock<IFunTranslationClient>();
         var describer = new PokemonDescriber(mockPokeApi.Object, mockTranslationApi.Object);
 
         //Act
-        var response = await describer.Get(examplePokemon.Name, true, new CancellationToken());
+        var response = await describer.Get(ExamplePokemon.Name, true, ct);
 
         //Assert
         mockPokeApi.Verify(api => api.GetByNameOrId(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once());
@@ -87,26 +90,26 @@ public class PokemonDescriberTests
     public async void GetReturnsPokemonWithTranslation()
     {
         //Arrange
-        var pokemon = Mapping.OfPokeApiPokemon(examplePokemon);
+        var pokemon = Mapping.OfPokeApiPokemon(ExamplePokemon);
         var flavorText = "My favourite flavor text";
         var translation = "My most bestest smörgårdsbord of text";
         pokemon.FlavorText = flavorText;
         pokemon.TranslatedFlavorText = translation;
         var mockPokeApi = new Mock<IPokeApiClient>();
         mockPokeApi
-            .Setup(api => api.GetByNameOrId(examplePokemon.Name.ToLower(), It.IsAny<CancellationToken>()).Result)
-            .Returns(examplePokemon);
+            .Setup(api => api.GetByNameOrId(ExamplePokemon.Name.ToLower(), It.IsAny<CancellationToken>()).Result)
+            .Returns(ExamplePokemon);
         mockPokeApi
-            .Setup(api => api.FlavorTextBySpeciesName(examplePokemon.Species.Name, It.IsAny<CancellationToken>()).Result)
+            .Setup(api => api.FlavorTextBySpeciesName(ExamplePokemon.Species.Name, It.IsAny<CancellationToken>()).Result)
             .Returns(flavorText);
         var mockTranslationApi = new Mock<IFunTranslationClient>();
         mockTranslationApi
-            .Setup(api => api.Translate(examplePokemon.Species.Name, flavorText, It.IsAny<CancellationToken>()).Result)
+            .Setup(api => api.Translate(ExamplePokemon.Species.Name, flavorText, It.IsAny<CancellationToken>()).Result)
             .Returns(translation);
         var describer = new PokemonDescriber(mockPokeApi.Object, mockTranslationApi.Object);
 
         //Act
-        var response = await describer.Get(examplePokemon.Name, true, new CancellationToken());
+        var response = await describer.Get(ExamplePokemon.Name, true, new CancellationToken());
 
         //Assert
         mockPokeApi.Verify(api => api.GetByNameOrId(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once());
@@ -125,14 +128,14 @@ public class PokemonDescriberTests
     public async void GetReturnsErrorIfNotFound()
     {
         //Arrange
-        var pokemon = examplePokemon;
+        var pokemon = ExamplePokemon;
         pokemon.Species = null;
         var mockPokeApi = new Mock<IPokeApiClient>();
         var mockTranslationApi = new Mock<IFunTranslationClient>();
         var describer = new PokemonDescriber(mockPokeApi.Object, mockTranslationApi.Object);
 
         //Act
-        var response = await describer.Get(examplePokemon.Name, true, new CancellationToken());
+        var response = await describer.Get(ExamplePokemon.Name, true, new CancellationToken());
 
         //Assert
         mockPokeApi.Verify(api => api.GetByNameOrId(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once());
