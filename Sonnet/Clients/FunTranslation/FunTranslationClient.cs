@@ -34,8 +34,7 @@ public class FunTranslationClient : IFunTranslationClient
     {
         try
         {
-            var key2 = CacheKey(key);
-            var cachedResponse = await _cache.GetStringAsync(key2, token);
+            var cachedResponse = await _cache.GetStringAsync(CacheKey(key), token);
             if (!string.IsNullOrEmpty(cachedResponse))
             {
                 _logger.LogInformation($"Cache hit on {key}");

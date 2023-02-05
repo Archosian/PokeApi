@@ -44,7 +44,7 @@ public class FunTranslationsClientTests
         var logger = Mock.Of<ILogger<FunTranslationClient>>();
         var cacheMock = new Mock<IDistributedCache>();
         var mockHandler = new MockHttpMessageHandler();
-        mockHandler.When($"{FunTranslationClient.BaseUrl}/shakespeare.json")
+        mockHandler.When($"{FunTranslationClient.BaseUrl}shakespeare.json")
             .Respond("application/json", apiResponse);
 
         var rest = new RestClient(new RestClientOptions{ ConfigureMessageHandler = _ => mockHandler });
@@ -53,7 +53,7 @@ public class FunTranslationsClientTests
         var client = new FunTranslationClient(logger, cacheMock.Object, rest);
 
         //Act
-        var response = await client.Translate(cacheKey, It.IsAny<string>(), new CancellationToken());
+        var response = await client.Translate(cacheKey, translationText, new CancellationToken());
 
         //Assert
         cacheMock.Verify(cache => cache.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once());

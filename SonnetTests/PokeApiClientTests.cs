@@ -11,11 +11,12 @@ namespace SonnetTests;
 
 public class PokeApiClientTests
 {
-    private static readonly Pokemon dummyPoke = new Pokemon()
+    private static readonly string PokeName = "dummyPoke";
+    private static readonly Pokemon DummyPoke = new Pokemon()
     {
         BaseExperience = 0,
         Id = 0,
-        Name = "dummyPokemon",
+        Name = PokeName,
         Species = new NamedApiResource() { Name = "specialspecies" },
         Sprites = null,
         Weight = 0
@@ -29,17 +30,17 @@ public class PokeApiClientTests
         //Arrange
         var logger = Mock.Of<ILogger<PokeApiClient>>();
         var mockHandler = new MockHttpMessageHandler();
-        mockHandler.Expect($"{PokeApiClient.BaseUrl}pokemon/{dummyPoke.Name}")
-            .Respond("application/json", JsonSerializer.Serialize(dummyPoke));
+        mockHandler.Expect($"{PokeApiClient.BaseUrl}pokemon/{DummyPoke.Name}")
+            .Respond("application/json", JsonSerializer.Serialize(DummyPoke));
         var rest = new RestClient(new RestClientOptions{ ConfigureMessageHandler = _ => mockHandler });
         var client = new PokeApiClient(logger, rest);
 
         //Act
-        var response = await client.GetByNameOrId(dummyPoke.Name, new CancellationToken());
+        var response = await client.GetByNameOrId(PokeName, new CancellationToken());
 
         //Assert
         mockHandler.VerifyNoOutstandingExpectation();
-        dummyPoke.ToExpectedObject().ShouldEqual(response);
+        DummyPoke.ToExpectedObject().ShouldEqual(response);
     }
 
     [Fact]
@@ -54,7 +55,7 @@ public class PokeApiClientTests
         var client = new PokeApiClient(logger, rest);
 
         //Act
-        var response = await client.GetByNameOrId(dummyPoke.Name, new CancellationToken());
+        var response = await client.GetByNameOrId(PokeName, new CancellationToken());
 
         //Assert
         Assert.Null(response);
@@ -74,7 +75,7 @@ public class PokeApiClientTests
                 new FlavorText { Text = expectedText, Version = new NamedApiResource { Name = PokeApiClient.TargetVersion}}
             }
         };
-        TestExpectationGetFlavorText(testName, dummySpecies, expectedText);
+        await TestExpectationGetFlavorText(testName, dummySpecies, expectedText);
     }
 
     [Fact]
@@ -90,7 +91,7 @@ public class PokeApiClientTests
                 new FlavorText { Text = "Other data", Version = new NamedApiResource { Name = "wrong version"}}
             }
         };
-        TestExpectationGetFlavorText(testName, dummySpecies, string.Empty);
+        await TestExpectationGetFlavorText(testName, dummySpecies, string.Empty);
     }
 
     [Fact]
@@ -102,10 +103,10 @@ public class PokeApiClientTests
         {
             FlavorTextEntries = new List<FlavorText>()
         };
-        TestExpectationGetFlavorText(testName, dummySpecies, string.Empty);
+        await TestExpectationGetFlavorText(testName, dummySpecies, string.Empty);
     }
 
-    private async void TestExpectationGetFlavorText(string name, Species expectedData, string expectedOutput)
+    private static async Task TestExpectationGetFlavorText(string name, Species expectedData, string expectedOutput)
     {
         //Arrange
         var logger = Mock.Of<ILogger<PokeApiClient>>();
